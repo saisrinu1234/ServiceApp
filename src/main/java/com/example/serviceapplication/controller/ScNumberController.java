@@ -1,5 +1,8 @@
 package com.example.serviceapplication.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,4 +70,32 @@ public class ScNumberController {
         }
     }
 
+    @PostMapping("/insert/list")
+    public ResponseEntity<?> InsertUsersList(@RequestBody List<ScNumber> scNumberlist) {
+        if (scNumberlist == null || scNumberlist.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No data is available");
+        }
+        ArrayList<ScNumber> newList = new ArrayList<>();
+
+        try {
+            for (ScNumber scnumber : scNumberlist) {
+                if (scNumberRepository.existsByscNumber(scnumber.scNumber)) {
+                    System.out.println("User is exists");
+                } else {
+                    newList.add(scnumber);
+                }
+            }
+            if (newList.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Already data is Inserted");
+            }
+            else
+            {
+                scNumberRepository.saveAll(newList);
+                return ResponseEntity.ok("Successfully "+newList.size()+" new records Inserted");
+            }
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
 }
